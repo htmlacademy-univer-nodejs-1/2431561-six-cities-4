@@ -1,94 +1,31 @@
-import { readFileSync } from 'node:fs';
+import EventEmitter from 'node:events';
+import { createReadStream } from 'node:fs';
 import { FileReader } from './file-reader.interface.js';
-import {
-  Amenity,
-  City,
-  HousingType,
-  Offer,
-  UserType,
-} from '../../types/index.js';
 
-export class TSVFileReader implements FileReader {
-  private rawData = '';
-
-  constructor(private readonly filename: string) {}
-
-  public read(): void {
-    this.rawData = readFileSync(this.filename, 'utf-8');
+const CHUNK_SIZE = 16384; // 16KB
+export class TSVFileReader extends EventEmitter implements FileReader {
+  constructor(private readonly filename: string) {
+    super();
   }
 
-  public toArray(): Offer[] {
-    if (!this.rawData) {
-      throw new Error('File was not read');
-    }
+  public async read(): Promise<void> {
+    const readStream = createReadStream(this.filename, {
+      highWaterMark: CHUNK_SIZE,
+      encoding: 'utf-8',
+    });
 
-    return this.rawData
-      .split('\n')
-      .filter((row) => row.trim().length > 0)
-      .map((line) => line.split('\t'))
-      .map(
-        ([
-          title,
-          description,
-          date,
-          city,
-          previewImage,
-          images,
-          isPremium,
-          isFavorite,
-          rating,
-          housingType,
-          numberOfRooms,
-          numberOfGuests,
-          price,
-          amenities,
-          name,
-          email,
-          avatar,
-          userType,
-          numberOfComments,
-          coordinates,
-        ]) => ({
-          title,
-          description,
-          publicationDate: new Date(date),
-          city: Object.values(City).includes(city as City)
-            ? (city as City)
-            : City.Amsterdam,
-          previewImage,
-          pictures: images.split(','),
-          isPremium: isPremium.toLowerCase() === 'true',
-          isFavorite: isFavorite.toLocaleLowerCase() === 'true',
-          rating: parseFloat(rating),
-          housingType: Object.values(HousingType).includes(
-            housingType as HousingType
-          )
-            ? (housingType as HousingType)
-            : HousingType.apartment,
-          numberOfRooms: parseInt(numberOfRooms, 10),
-          numberOfGuests: parseInt(numberOfGuests, 10),
-          price: parseInt(price, 10),
-          amenities: amenities
-            .split(',')
-            .map((amenity) =>
-              Object.values(Amenity).includes(amenity.trim() as Amenity)
-                ? (amenity as Amenity)
-                : Amenity.AirConditioning
-            ),
-          author: {
-            name: name,
-            email: email,
-            avatar: avatar,
-            type: Object.values(UserType).includes(userType as UserType)
-              ? (userType as UserType)
-              : UserType.regular,
-          },
-          numberOfComments: parseInt(numberOfComments, 10),
-          coordinates: {
-            latitude: Number(coordinates.split(';')[0]),
-            longitude: Number(coordinates.split(';')[1]),
-          },
-        })
-      );
+    let remainingData = '';
+    let nextLinePosition = -1;
+    let importedRowCount = 0;
+
+    for await (const chunk of readStream) {
+      remainingData += chunk.toString();
+      while ((nextLinePosition = remainingData.indexOf('\n')) >= 0) {
+        const completeRow = remainingData.slice(0, nextLinePosition + 1);
+        importedRowCount++;
+        this.emit('line', completeRow);
+      }
+    }
+    this.emit('end', importedRowCount);
   }
 }

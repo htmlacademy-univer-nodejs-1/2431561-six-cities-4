@@ -1,0 +1,693 @@
+openapi: 3.0.0
+info:
+  title: API сервер для проекта "Шесть городов".
+  description: |-
+    * REST API для сервиса аренды жилья в шести популярных городах.
+    * Список ресурсов и маршрутов сервера "Шесть городов".
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+
+tags:
+  - name: offers
+    description: Действия с объявлениями.
+  - name: users
+    description: Действия с пользователем.
+  - name: comments
+    description: Действия с комментариями.
+
+paths:
+  /offers:
+    get:
+      tags:
+        - offers
+      summary: Получить все доступные объекты аренды
+      description: Отдаёт набор актуальных предложений, лимитируемый параметром запроса
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            example: 60
+          description: Максимальное количество возвращаемых элементов
+      responses:
+        '200':
+          description: Успешный ответ с массивом предложений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/offer'
+    post:
+      tags:
+        - offers
+      summary: Добавить новое объявление
+      description: Позволяет авторизованному пользователю разместить объект недвижимости для аренды
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Данные нового предложения
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+      responses:
+        '200':
+          description: Объект успешно добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        '400':
+          description: Ошибка в переданных данных
+        '401':
+          description: Необходима авторизация
+
+  /offers/{offerId}:
+    delete:
+      tags:
+        - offers
+      summary: Удалить предложение
+      description: Удаляет объект предложение об аренде, если пользователь имеет права
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: abc123xyz456
+      responses:
+        '204':
+          description: Объект удалён
+        '401':
+          description: Требуется авторизация
+        '404':
+          description: Объект не найден
+    patch:
+      tags:
+        - offers
+      summary: Обновить параметры объекта
+      description: Позволяет отредактировать уже существующее предложение
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: abc123xyz456
+      requestBody:
+        description: Новые данные
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+      responses:
+        '200':
+          description: Изменения сохранены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        '400':
+          description: Неверный формат данных
+        '401':
+          description: Требуется авторизация
+        '404':
+          description: Объект не найден
+    get:
+      tags:
+        - offers
+      summary: Получить детали предложения об аренде
+      description: Возвращает информацию по ID предложения
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: abc123xyz456
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        '404':
+          description: Объект не найден
+
+  /offers/{city}/premium:
+    get:
+      tags:
+        - offers
+      summary: Лучшие предложения в городе
+      description: Возвращает список до 3 топ-предложений с меткой "Премиум" в указанном городе
+      parameters:
+        - name: city
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf]
+          description: Название города
+      responses:
+        '200':
+          description: Премиум-предложения в выбранном городе
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/offer'
+
+  /offers/favorites:
+    get:
+      tags:
+        - offers
+      summary: Просмотр избранных предложений
+      description: Получить список объектов, добавленных в "Избранное" текущим пользователем
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешное получение списка избранного
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/offer'
+        '401':
+          description: Требуется авторизация
+
+  /offers/{offerId}/favorite:
+    post:
+      tags:
+        - offers
+      summary: Добавить или удалить объект из избранного
+      description: Устанавливает или снимает отметку "избранное" у предложения
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: abc123xyz456
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: integer
+            enum: [0, 1]
+            example: 1
+          description: 1 — добавить в избранное, 0 — удалить
+      responses:
+        '200':
+          description: Объект обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        '401':
+          description: Требуется авторизация
+        '404':
+          description: Объект не найден
+
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя.
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+
+      responses:
+        '201':
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        '409':
+          description: Пользователь с таким email уже существует.
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Авторизация пользователя
+      description: Авторизует пользователя на основе логина и пароля.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: keks@htmlacademy.ru
+
+                password:
+                  type: string
+                  example: 12345678
+
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Успешная авторизация. Токен доступа.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        '401':
+          description: Неверный логин или пароль.
+        '404':
+          description: Пользователь не найден.
+
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Возвращает информацию по авторизованному пользователю
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Пользователь авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '401':
+          description: Пользователь не авторизован.
+
+  /users/logout:
+    post:
+      tags:
+        - users
+      summary: Выход пользователя (разрыв сессии)
+      description: Завершает пользовательский сеанс.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Сессия завершена успешно.
+        '401':
+          description: Пользователь не авторизован.
+
+  /comments:
+    post:
+      tags:
+        - comments
+      summary: Добавление комментария
+      description: Предоставляет возможность добавления комментария к предложению
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        description: Информация для создания нового комментария.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createComment'
+        required: true
+
+      responses:
+        '200':
+          description: Новый комментарий успешно добавлен.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '401':
+          description: Добавлять комментарии могут только авторизованные пользователи.
+        '404':
+          description: Предложение не найдено
+
+  /comments/{offerId}:
+    get:
+      tags:
+        - comments
+      summary: Список комментариев для предложения
+      description: Предоставляет список комментариев к предложению. Сервис всегда возвращает список из 50 (или меньше) последних комментариев.
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 6329c3d6a04ab1061c6425eo
+          description: Идентификатор предложения, для которого запрашиваются комментарии
+
+      responses:
+        '200':
+          description: Список комментариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/comment'
+        '404':
+          description: Предложение не найдено
+
+components:
+  schemas:
+    createUser:
+      type: object
+
+      properties:
+        email:
+          type: string
+          example: cosmos@example.com
+
+        avatarUrl:
+          type: string
+          example: headshot.jpg
+
+        name:
+          type: string
+          example: Михаил Новиков
+
+        type:
+          type: string
+          enum: [regular, pro]
+          example: pro
+
+        password:
+          type: string
+          example: qwerty123
+
+    user:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: a4ab106329c3d6a06425e61c
+
+        email:
+          type: string
+          example: cosmos@example.com
+
+        avatarUrl:
+          type: string
+          example: headshot.jpg
+
+        name:
+          type: string
+          example: Михаил Новиков
+
+        type:
+          type: string
+          enum: [regular, pro]
+          example: pro
+
+    createOffer:
+      type: object
+
+      properties:
+        title:
+          type: string
+          example: Солнечная квартира с балконом в Париже
+
+        description:
+          type: string
+          example: Светлая и просторная квартира в самом сердце Парижа, с балконом и потрясающим видом на город. Рядом магазины, рестораны и музеи.
+
+        previewImage:
+          type: string
+          example: hamburg_apartment2_preview.jpg
+
+        postDate:
+          type: string
+          format: date
+          example: 2025-04-25
+
+        price:
+          type: number
+          example: 44019
+
+        city:
+          type: string
+          enum: [Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf]
+          example: Paris
+
+        images:
+          type: array
+          items:
+            type: string
+          example:
+            [
+              hallway_02.jpg,
+              hallway_02.jpg,
+              shower_01.jpg,
+              dining_room_02.jpg,
+              closet_01.jpg,
+              bedroom_01.jpg,
+            ]
+
+        isPremium:
+          type: boolean
+          example: true
+
+        isFavorite:
+          type: boolean
+          example: false
+
+        rate:
+          type: number
+          example: 4.3
+
+        type:
+          type: string
+          enum: [apartment, house, room, hotel]
+          example: room
+
+        bedrooms:
+          type: integer
+          example: 2
+
+        maxAdults:
+          type: integer
+          example: 4
+
+        amenities:
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                Breakfast,
+                Air conditioning,
+                Laptop friendly workspace,
+                Baby seat,
+                Washer,
+                Towels,
+                Fridge,
+              ]
+            example: [Breakfast]
+
+        host:
+          type: string
+          example: a4ab106329c3d6a06425e61c
+
+        coordinates:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 50.846557
+
+            longitude:
+              type: number
+              example: 4.351697
+
+    offer:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: 9c3d6a06425e61ca4ab10632
+
+        title:
+          type: string
+          example: Солнечная квартира с балконом в Париже
+
+        description:
+          type: string
+          example: Светлая и просторная квартира в самом сердце Парижа, с балконом и потрясающим видом на город. Рядом магазины, рестораны и музеи.
+
+        previewImage:
+          type: string
+          example: hamburg_apartment2_preview.jpg
+
+        postDate:
+          type: string
+          format: date
+          example: 2025-04-25
+
+        price:
+          type: number
+          example: 44019
+
+        city:
+          type: string
+          enum: [Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf]
+          example: Paris
+
+        images:
+          type: array
+          items:
+            type: string
+          example:
+            [
+              hallway_02.jpg,
+              hallway_02.jpg,
+              shower_01.jpg,
+              dining_room_02.jpg,
+              closet_01.jpg,
+              bedroom_01.jpg,
+            ]
+
+        isPremium:
+          type: boolean
+          example: true
+
+        isFavorite:
+          type: boolean
+          example: false
+
+        rate:
+          type: number
+          example: 4.3
+
+        type:
+          type: string
+          enum: [apartment, house, room, hotel]
+          example: room
+
+        bedrooms:
+          type: integer
+          example: 2
+
+        maxAdults:
+          type: integer
+          example: 4
+
+        amenities:
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                Breakfast,
+                Air conditioning,
+                Laptop friendly workspace,
+                Baby seat,
+                Washer,
+                Towels,
+                Fridge,
+              ]
+            example: [Breakfast]
+
+        host:
+          type: string
+          example: a4ab106329c3d6a06425e61c
+
+        coordinates:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 50.846557
+
+            longitude:
+              type: number
+              example: 4.351697
+
+    createComment:
+      type: object
+
+      properties:
+        text:
+          type: string
+          example: Все замечательно
+          minLength: 5
+          maxLength: 1024
+
+        postDate:
+          type: string
+          format: date
+          example: 2025-04-30
+
+        rating:
+          type: number
+          example: 5
+
+        author:
+          type: string
+          example: a4ab106329c3d6a06425e61c
+
+    comment:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: 6329c3d6a04ab1061c6425ec
+
+        text:
+          type: string
+          example: Все замечательно
+          minLength: 5
+          maxLength: 1024
+
+        postDate:
+          type: string
+          format: date
+          example: 2025-04-30
+
+        rating:
+          type: number
+          example: 5
+
+        author:
+          type: string
+          example: a4ab106329c3d6a06425e61c
+
+        offer:
+          type: string
+          example: 9c3d6a06425e61ca4ab10632
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,9 +1,11 @@
-import { Amenity } from '../types/amenity.enum.js';
-import { City } from '../types/city.enum.js';
-import { HousingType } from '../types/housing-type.enum.js';
-import { Offer } from '../types/offer.type.js';
-import { UserType } from '../types/user-type.enum.js';
-import { User } from '../types/user.type.js';
+import {
+  Amenity,
+  City,
+  HousingType,
+  Offer,
+  UserType,
+  User,
+} from '../types/index.js';
 
 export function createOffer(offerData: string): Offer {
   const [

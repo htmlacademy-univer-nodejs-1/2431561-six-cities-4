@@ -1,7 +1,7 @@
 import convict from 'convict';
-import validators from 'convict-format-with-validator';
+import validator from 'convict-format-with-validator';
 
-convict.addFormats(validators);
+convict.addFormats(validator);
 
 export type RestSchema = {
   PORT: number;

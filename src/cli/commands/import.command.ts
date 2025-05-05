@@ -23,6 +23,8 @@ import {
 } from '../../shared/modules/user/index.js';
 import { Offer } from '../../shared/types/offer.type.js';
 import { DEFAULT_USER_PASSWORD, DEFAULT_DB_PORT } from './command.constant.js';
+import { FavoriteModel } from '../../shared/modules/favorite/favorite.entity.js';
+import { CommentModel } from '../../shared/modules/comment/comment.entity.js';
 
 export class ImportCommand implements Command {
   private userService: UserService;
@@ -37,7 +39,12 @@ export class ImportCommand implements Command {
 
     this.logger = new ConsoleLogger();
     this.userService = new DefaultUserService(this.logger, UserModel);
-    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+    this.offerService = new DefaultOfferService(
+      this.logger,
+      OfferModel,
+      FavoriteModel,
+      CommentModel
+    );
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
 
@@ -82,7 +89,6 @@ export class ImportCommand implements Command {
       price: offer.price,
       amenities: offer.amenities,
       author: author.id,
-      coordinates: offer.coordinates,
     });
   }
 

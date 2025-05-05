@@ -13,8 +13,7 @@ export function createOfferContainer() {
 
   offerContainer
     .bind<OfferService>(Component.OfferService)
-    .to(DefaultOfferService)
-    .inSingletonScope();
+    .to(DefaultOfferService);
   offerContainer
     .bind<types.ModelType<OfferEntity>>(Component.OfferModel)
     .toConstantValue(OfferModel);

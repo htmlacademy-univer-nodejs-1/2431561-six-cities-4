@@ -1,6 +1,7 @@
 import { Amenity, City, HousingType } from '../../../types/index.js';
 
-export class CreateOfferDto {
+export class OfferResponseDto {
+  public id!: string;
   public title!: string;
   public description!: string;
   public publicationDate!: Date;
@@ -15,6 +16,6 @@ export class CreateOfferDto {
   public numberOfGuests!: number;
   public price!: number;
   public amenities!: Amenity[];
-  public author!: string;
+  // public author!: string;
   // public coordinates!: Coordinates;
 }

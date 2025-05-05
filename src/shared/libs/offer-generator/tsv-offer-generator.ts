@@ -27,7 +27,7 @@ const MAX_PRICE = 100000;
 export class TSVOfferGenerator implements OfferGenerator {
   constructor(private readonly mockData: MockServerData) {}
 
-  generate(): string {
+  public generate(): string {
     const title = getRandomItem(this.mockData.titles);
     const description = getRandomItem(this.mockData.descriptions);
     const publicationDate = dayjs()

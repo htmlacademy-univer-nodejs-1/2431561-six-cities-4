@@ -1,9 +1,10 @@
+import { inject, injectable } from 'inversify';
 import { Logger } from '../shared/libs/logger/logger.interface.js';
 import { Config, RestSchema } from '../shared/libs/config/index.js';
-import { inject, injectable } from 'inversify';
 import { Component } from '../shared/types/component.enum.js';
 import { DatabaseClient } from '../shared/libs/database-client/database-client.interface.js';
 import { getMongoURI } from '../shared/helpers/database.js';
+import { UserModel } from '../shared/modules/user/user.entity.js';
 
 @injectable()
 export class RestApplication {
@@ -31,5 +32,6 @@ export class RestApplication {
     this.logger.info('Init database...');
     await this._initDb();
     this.logger.info('Init database completed');
+    await UserModel.syncIndexes();
   }
 }

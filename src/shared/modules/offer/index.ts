@@ -5,3 +5,7 @@ export * from './dto/update-offer.dto.js';
 export * from './offer-service.interface.js';
 export * from './deffault-offer.service.js';
 export * from './offer.container.js';
+export * from './rdo/offer.rdo.js';
+export * from './create-offer-request.type.js';
+export * from './offer.constant.js';
+export * from './offer.controller.js';

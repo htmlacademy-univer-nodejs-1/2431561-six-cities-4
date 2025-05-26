@@ -1,12 +1,14 @@
 import { Container } from 'inversify';
+import { types } from '@typegoose/typegoose';
 import {
   UserService,
   DefaultUserService,
   UserEntity,
   UserModel,
+  UserController,
 } from './index.js';
-import { types } from '@typegoose/typegoose';
 import { Component } from '../../types/component.enum.js';
+import { Controller } from '../../libs/rest/index.js';
 
 export function createUserContainer() {
   const userContainer = new Container();
@@ -17,5 +19,9 @@ export function createUserContainer() {
   userContainer
     .bind<types.ModelType<UserEntity>>(Component.UserModel)
     .toConstantValue(UserModel);
+  userContainer
+    .bind<Controller>(Component.UserController)
+    .to(UserController)
+    .inSingletonScope();
   return userContainer;
 }

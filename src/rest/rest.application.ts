@@ -5,7 +5,6 @@ import { Config, RestSchema } from '../shared/libs/config/index.js';
 import { Component } from '../shared/types/component.enum.js';
 import { DatabaseClient } from '../shared/libs/database-client/database-client.interface.js';
 import { getMongoURI } from '../shared/helpers/database.js';
-import { UserModel } from '../shared/modules/user/user.entity.js';
 import { Controller, ExceptionFilter } from '../shared/libs/rest/index.js';
 
 @injectable()
@@ -21,6 +20,8 @@ export class RestApplication {
     private readonly offerController: Controller,
     @inject(Component.UserController)
     private readonly userController: Controller,
+    @inject(Component.CommentController)
+    private readonly commentController: Controller,
     @inject(Component.ExceptionFilter)
     private readonly appExceptionFilter: ExceptionFilter
   ) {
@@ -50,6 +51,7 @@ export class RestApplication {
   private async _initControllers() {
     this.server.use('/users', this.userController.router);
     this.server.use('/offers', this.offerController.router);
+    this.server.use('/comments', this.commentController.router);
   }
 
   private async _initExceptionFilters() {
@@ -82,6 +84,5 @@ export class RestApplication {
     this.logger.info(
       `🚀 Server started on http://localhost:${this.config.get('PORT')}`
     );
-    await UserModel.syncIndexes();
   }
 }

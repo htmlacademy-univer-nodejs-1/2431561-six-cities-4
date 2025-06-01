@@ -1,6 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { City, HousingType, Amenity } from '../../../types/index.js';
-import { UserEntity } from '../../user/index.js';
+import { UserRdo } from '../../user/index.js';
 
 export class OfferRdo {
   @Expose()
@@ -12,7 +12,7 @@ export class OfferRdo {
   @Expose()
   public description: string;
 
-  @Expose()
+  @Expose({ name: 'createdAt' })
   public publicationDate: Date;
 
   @Expose()
@@ -51,6 +51,7 @@ export class OfferRdo {
   @Expose()
   public name: string;
 
-  @Expose()
-  public author: UserEntity;
+  @Expose({ name: 'userId' })
+  @Type(() => UserRdo)
+  public user: UserRdo;
 }

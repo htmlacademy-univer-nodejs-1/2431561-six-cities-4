@@ -70,7 +70,11 @@ export class CreateOfferDto {
   @Max(10, { message: CreateOfferMessages.maxAdults.maxValue })
   public numberOfGuests: number;
 
-  // public price: number;
+  @IsNotEmpty()
+  @IsInt({ message: CreateOfferMessages.price.invalidFormat })
+  @Min(100, { message: CreateOfferMessages.price.minValue })
+  @Max(100000, { message: CreateOfferMessages.price.maxValue })
+  public price: number;
 
   @IsArray({ message: CreateOfferMessages.amenities.invalidFormat })
   @IsEnum(Amenity, {

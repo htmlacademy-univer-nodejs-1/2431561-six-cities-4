@@ -24,7 +24,6 @@ export interface OfferService {
     city: City,
     userId?: string
   ): Promise<DocumentType<OfferEntity>[]>;
-  updateRating(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   incCommentCount(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   exists(documentId: string): Promise<boolean>;
 }

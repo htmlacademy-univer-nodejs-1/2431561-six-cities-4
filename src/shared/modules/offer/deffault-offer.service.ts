@@ -9,7 +9,6 @@ import {
   UpdateOfferDto,
 } from './index.js';
 import { FavoriteEntity } from '../favorite/index.js';
-import { CommentEntity } from '../comment/index.js';
 import {
   DEFAULT_OFFER_COUNT,
   DEFAULT_PREMIUM_OFFER_COUNT,
@@ -23,9 +22,7 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.FavoriteModel)
-    private readonly favoriteModel: types.ModelType<FavoriteEntity>,
-    @inject(Component.CommentModel)
-    private readonly commentModel: types.ModelType<CommentEntity>
+    private readonly favoriteModel: types.ModelType<FavoriteEntity>
   ) {}
 
   public async create(
@@ -139,19 +136,6 @@ export class DefaultOfferService implements OfferService {
       .exec();
 
     return this.addFavoriteToOffer(offers, userId);
-  }
-
-  public async updateRating(
-    offerId: string
-  ): Promise<types.DocumentType<OfferEntity> | null> {
-    const comments = await this.commentModel.find({ offerId }).exec();
-    const ratings = comments.map((comment) => comment.rating);
-    const total = ratings.reduce((acc, cur) => (acc += cur), 0);
-    const avgRating = ratings.length > 0 ? total / ratings.length : 0;
-
-    return this.offerModel
-      .findByIdAndUpdate(offerId, { rate: avgRating }, { new: true })
-      .exec();
   }
 
   public async incCommentCount(

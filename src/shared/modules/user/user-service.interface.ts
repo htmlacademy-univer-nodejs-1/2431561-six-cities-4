@@ -9,4 +9,5 @@ export interface UserService {
     salt: string
   ): Promise<DocumentType<UserEntity>>;
   findById(id: string): Promise<DocumentType<UserEntity> | null>;
+  exists(documentId: string): Promise<boolean>;
 }

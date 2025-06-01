@@ -7,5 +7,7 @@ export * from './deffault-offer.service.js';
 export * from './offer.container.js';
 export * from './rdo/offer.rdo.js';
 export * from './type/create-offer-request.type.js';
+export * from './type/params-city.type.js';
+export * from './type/params-offerId.type.js';
 export * from './offer.constant.js';
 export * from './offer.controller.js';

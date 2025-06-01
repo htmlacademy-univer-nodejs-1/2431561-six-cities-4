@@ -33,17 +33,19 @@ export class UserController extends BaseController {
       path: '/login',
       method: HttpMethod.Post,
       handler: this.login,
+      middlewares: [new ValidateDtoMiddleware(LoginUserDto)],
     });
     this.addRoute({
       path: '/register',
       method: HttpMethod.Post,
       handler: this.create,
+      middlewares: [new ValidateDtoMiddleware(CreateUserDto)],
     });
   }
 
   public async create(
     { body }: CreateUserRequest,
-    res: Response
+    _res: Response
   ): Promise<void> {
     const existsUser = await this.userService.findByEmail(body.email);
 
@@ -59,7 +61,7 @@ export class UserController extends BaseController {
       body,
       this.configService.get('SALT')
     );
-    this.created(res, fillDTO(UserRdo, result));
+    this.created(_res, fillDTO(UserRdo, result));
   }
 
   public async login(

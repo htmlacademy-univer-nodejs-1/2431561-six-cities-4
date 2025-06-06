@@ -2,7 +2,6 @@ import {
   IsArray,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsOptional,
   IsString,
   Length,
@@ -74,7 +73,6 @@ export class UpdateOfferDto {
   public amenities?: Amenity[];
 
   @IsOptional()
-  @IsMongoId({ message: UpdateOfferMessages.userId.invalidId })
   public userId?: string;
 
   // public coordinates?: Coordinates;

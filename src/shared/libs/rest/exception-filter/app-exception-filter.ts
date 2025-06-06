@@ -29,24 +29,24 @@ export class AppExceptionFilter implements ExceptionFilter {
   private handleHttpError(
     error: HttpError,
     _req: Request,
-    res: Response,
+    _res: Response,
     _next: NextFunction
   ) {
     this.logger.error(
       `[${error.detail}]: ${error.httpStatusCode} — ${error.message}`,
       error
     );
-    res.status(error.httpStatusCode).json(createErrorObject(error.message));
+    _res.status(error.httpStatusCode).json(createErrorObject(error.message));
   }
 
   private handleOtherError(
     error: Error,
     _req: Request,
-    res: Response,
+    _res: Response,
     _next: NextFunction
   ) {
     this.logger.error(error.message, error);
-    res
+    _res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(createErrorObject(error.message));
   }

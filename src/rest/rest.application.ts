@@ -5,7 +5,11 @@ import { Config, RestSchema } from '../shared/libs/config/index.js';
 import { Component } from '../shared/types/component.enum.js';
 import { DatabaseClient } from '../shared/libs/database-client/database-client.interface.js';
 import { getMongoURI } from '../shared/helpers/database.js';
-import { Controller, ExceptionFilter } from '../shared/libs/rest/index.js';
+import {
+  Controller,
+  ExceptionFilter,
+  ParseTokenMiddleware,
+} from '../shared/libs/rest/index.js';
 
 @injectable()
 export class RestApplication {
@@ -23,7 +27,9 @@ export class RestApplication {
     @inject(Component.CommentController)
     private readonly commentController: Controller,
     @inject(Component.ExceptionFilter)
-    private readonly appExceptionFilter: ExceptionFilter
+    private readonly appExceptionFilter: ExceptionFilter,
+    @inject(Component.AuthExceptionFilter)
+    private readonly authExceptionFilter: ExceptionFilter
   ) {
     this.server = express();
   }
@@ -45,10 +51,17 @@ export class RestApplication {
   }
 
   private async _initMiddleware() {
+    const authenticateMiddleware = new ParseTokenMiddleware(
+      this.config.get('JWT_SECRET')
+    );
+
     this.server.use(express.json());
     this.server.use(
       '/upload',
       express.static(this.config.get('UPLOAD_DIRECTORY'))
+    );
+    this.server.use(
+      authenticateMiddleware.execute.bind(authenticateMiddleware)
     );
   }
 
@@ -61,6 +74,9 @@ export class RestApplication {
   private async _initExceptionFilters() {
     this.server.use(
       this.appExceptionFilter.catch.bind(this.appExceptionFilter)
+    );
+    this.server.use(
+      this.authExceptionFilter.catch.bind(this.authExceptionFilter)
     );
   }
 
@@ -83,7 +99,7 @@ export class RestApplication {
     await this._initExceptionFilters();
     this.logger.info('Exception filters initialization completed');
 
-    this.logger.info('Try to init server…');
+    this.logger.info('Try to init server...');
     await this._initServer();
     this.logger.info(
       `🚀 Server started on http://localhost:${this.config.get('PORT')}`

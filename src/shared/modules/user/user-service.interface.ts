@@ -8,6 +8,5 @@ export interface UserService {
     dto: CreateUserDto,
     salt: string
   ): Promise<DocumentType<UserEntity>>;
-  findById(id: string): Promise<DocumentType<UserEntity> | null>;
   exists(documentId: string): Promise<boolean>;
 }

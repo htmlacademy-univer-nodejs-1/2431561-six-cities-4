@@ -3,14 +3,14 @@ import { UserType } from '../../../types/index.js';
 
 export class UserRdo {
   @Expose()
-  public name!: string;
+  public name: string;
 
   @Expose()
-  public email!: string;
+  public email: string;
 
   @Expose()
-  public avatar!: string;
+  public avatar: string;
 
   @Expose()
-  public type!: UserType;
+  public type: UserType;
 }

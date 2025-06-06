@@ -5,7 +5,6 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsNotEmpty,
   Max,
   MaxLength,
@@ -85,7 +84,6 @@ export class CreateOfferDto {
   public amenities: Amenity[];
 
   @IsNotEmpty()
-  @IsMongoId({ message: CreateOfferMessages.userId.invalidId })
   public userId: string;
   // public coordinates: Coordinates;
 }

@@ -25,7 +25,7 @@ export class CreateUserDto {
   @Matches(/\.(png|jpg)$/i, {
     message: CreateUserMessages.avatar.invalidExtension,
   })
-  public avatar?: string;
+  public avatar: string;
 
   @IsNotEmpty({ message: CreateUserMessages.type.invalidType })
   @IsEnum(UserType, { message: CreateUserMessages.type.invalidType })

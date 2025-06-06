@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { DocumentExists } from '../../../types/index.js';
-import { HttpError, Middleware } from '../index.js';
+import { Middleware, HttpError } from '../index.js';
 
 export class DocumentExistsMiddleware implements Middleware {
   constructor(

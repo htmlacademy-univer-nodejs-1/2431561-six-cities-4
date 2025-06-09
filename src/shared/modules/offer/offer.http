@@ -50,6 +50,24 @@ Content-Type: application/json
 
 ###
 
+## Список избранных предложений
+GET http://localhost:3123/offers/favorites HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp4Y0BtYWlsLnJ1IiwibmFtZSI6IkphY2siLCJpZCI6IjY4NDE4MWUyZmIwYTQ5NjQ0NjM2ODkyYyIsImlhdCI6MTc0OTEyODQ4NSwiZXhwIjoxNzQ5MzAxMjg1fQ.hjgIB4B9QYZ5eVKc00iBCVIR5TWgRny_PwfJkRbWx7k
+
+###
+
+## Добавление предложение в избранное
+POST http://localhost:3123/offers/6841b7cfdeb5a80ae81ad51d/favorite HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp4Y0BtYWlsLnJ1IiwibmFtZSI6IkphY2siLCJpZCI6IjY4NDE4MWUyZmIwYTQ5NjQ0NjM2ODkyYyIsImlhdCI6MTc0OTEyODQ4NSwiZXhwIjoxNzQ5MzAxMjg1fQ.hjgIB4B9QYZ5eVKc00iBCVIR5TWgRny_PwfJkRbWx7k
+
+###
+
+## Удаление предложение в избранное
+DELETE http://localhost:3123/offers/6841b7cfdeb5a80ae81ad51d/favorite HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp4Y0BtYWlsLnJ1IiwibmFtZSI6IkphY2siLCJpZCI6IjY4NDE4MWUyZmIwYTQ5NjQ0NjM2ODkyYyIsImlhdCI6MTc0OTEyODQ4NSwiZXhwIjoxNzQ5MzAxMjg1fQ.hjgIB4B9QYZ5eVKc00iBCVIR5TWgRny_PwfJkRbWx7k
+
+###
+
 ## Список объявлений из определенного города
 
 GET http://localhost:5001/offers/Paris/premium HTTP/1.1
@@ -58,5 +76,21 @@ GET http://localhost:5001/offers/Paris/premium HTTP/1.1
 
 ## Список комментариев к объявлению
 GET http://localhost:5001/offers/680f83b7b6123430ae0cd85b/comments HTTP/1.1
+
+###
+
+## Загрузить изображение для объявления
+POST http://localhost:3123/offers/68429ac0e9a99fea8f6fab42/image HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjgyOTkzNzUyYjU5ZjUwYjU4ZWEzY2ZmIiwiaWF0IjoxNzQ5MDI0Nzk4LCJleHAiOjE3NDkxOTc1OTh9.n_VeFc9Iq4IBRNV2hANXo2eWCV9Ztb8MrLy58f_pF54
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="image.png"
+Content-Type: image/png
+
+< /Users/User/Desktop/image.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
 
 ###

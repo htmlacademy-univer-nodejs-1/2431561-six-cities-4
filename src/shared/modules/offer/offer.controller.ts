@@ -9,6 +9,7 @@ import {
   HttpMethod,
   PrivateRouteMiddleware,
   RequestQuery,
+  UploadFileMiddleware,
   ValidateDtoMiddleware,
   ValidateObjectIdMiddleware,
 } from '../../libs/rest/index.js';
@@ -23,8 +24,10 @@ import {
   ParamsCity,
   ParamsOfferId,
   UpdateOfferDto,
+  UploadImageRdo,
 } from './index.js';
 import { CommentService, CommentRdo } from '../comment/index.js';
+import { Config, RestSchema } from '../../libs/config/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -32,7 +35,8 @@ export class OfferController extends BaseController {
     @inject(Component.Logger) protected readonly logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
     @inject(Component.CommentService)
-    private readonly commentService: CommentService
+    private readonly commentService: CommentService,
+    @inject(Component.Config) private readonly configService: Config<RestSchema>
   ) {
     super(logger);
 
@@ -133,6 +137,20 @@ export class OfferController extends BaseController {
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ],
     });
+
+    this.addRoute({
+      path: '/:offerId/image',
+      method: HttpMethod.Post,
+      handler: this.uploadImage,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new UploadFileMiddleware(
+          this.configService.get('UPLOAD_DIRECTORY'),
+          'image'
+        ),
+      ],
+    });
   }
 
   public async index(
@@ -151,7 +169,7 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const result = await this.offerService.create({
       ...body,
-      userId: tokenPayload.id,
+      author: tokenPayload.id,
     });
     const offer = await this.offerService.findById(result.id);
     this.created(res, fillDTO(OfferRdo, offer));
@@ -233,5 +251,15 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const comments = await this.commentService.findByOfferId(params.offerId);
     this.ok(res, fillDTO(CommentRdo, comments));
+  }
+
+  public async uploadImage(
+    { params, file }: Request<ParamsOfferId>,
+    res: Response
+  ) {
+    const { offerId } = params;
+    const updateDto = { previewImage: file?.filename };
+    await this.offerService.updateById(offerId, updateDto);
+    this.created(res, fillDTO(UploadImageRdo, updateDto));
   }
 }

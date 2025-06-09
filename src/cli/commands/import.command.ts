@@ -87,20 +87,27 @@ export class ImportCommand implements Command {
       numberOfRooms: offer.numberOfRooms,
       numberOfGuests: offer.numberOfGuests,
       price: offer.price,
-      amenities: offer.amenities,
       author: author.id,
+      amenities: offer.amenities,
+      coordinates: offer.coordinates,
+      commentCount: 0,
     });
   }
 
   public async execute(
     filename: string,
     login: string,
-    password: string,
     host: string,
     dbname: string,
     salt: string
   ): Promise<void> {
-    const uri = getMongoURI(login, password, host, DEFAULT_DB_PORT, dbname);
+    const uri = getMongoURI(
+      login,
+      DEFAULT_USER_PASSWORD,
+      host,
+      DEFAULT_DB_PORT,
+      dbname
+    );
     this.salt = salt;
     await this.databaseClient.connect(uri);
     const fileReader = new TSVFileReader(filename.trim());

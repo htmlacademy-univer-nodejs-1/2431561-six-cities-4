@@ -3,15 +3,22 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   Max,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
-import { Amenity, City, HousingType } from '../../../types/index.js';
+import {
+  Amenity,
+  City,
+  Coordinates,
+  HousingType,
+} from '../../../types/index.js';
 import { CreateOfferMessages } from './create-offer.messages.js';
 
 export class CreateOfferDto {
@@ -29,9 +36,9 @@ export class CreateOfferDto {
   })
   public description: string;
 
-  // @IsNotEmpty()
-  // @IsDateString({}, { message: CreateOfferValidationMessage.postDate.invalidFormat })
-  // public publicationDate: Date;
+  @IsNotEmpty()
+  @IsDateString({}, { message: CreateOfferMessages.postDate.invalidFormat })
+  public publicationDate: Date;
 
   @IsNotEmpty()
   @IsEnum(City, { message: CreateOfferMessages.city.invalid })
@@ -50,8 +57,12 @@ export class CreateOfferDto {
   @IsBoolean()
   public isPremium: boolean;
 
-  // public isFavorite: boolean;
-  // public rating: number;
+  public isFavorite: boolean;
+
+  @IsNumber()
+  @Min(1, { message: CreateOfferMessages.rating.minValue })
+  @Max(5, { message: CreateOfferMessages.rating.maxValue })
+  public rating: number;
 
   @IsNotEmpty()
   @IsEnum(HousingType, { message: CreateOfferMessages.type.invalid })
@@ -84,6 +95,9 @@ export class CreateOfferDto {
   public amenities: Amenity[];
 
   @IsNotEmpty()
-  public userId: string;
-  // public coordinates: Coordinates;
+  public author: string;
+
+  public coordinates: Coordinates;
+
+  public commentCount!: number;
 }

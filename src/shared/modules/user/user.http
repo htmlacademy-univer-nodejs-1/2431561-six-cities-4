@@ -1,47 +1,80 @@
 # Пользователи
 ## Создать нового пользователя
 
-POST http://localhost:5001/users/register HTTP/1.1
+POST http://localhost:3123/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "torans@overlook.net",
-  "avatarPath": "torrance.png",
-  "firstname": "Jack",
+  "email": "charlie@mail.ru",
+  "name": "Jack",
   "lastname": "Torrance",
-  "password": "shining"
+  "password": "1234567",
+  "userType": "pro"
+}
+
+###
+
+## Создать нового пользователя когда ты залогирован
+
+POST http://localhost:3123/users/register HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp4Y0BtYWlsLnJ1IiwibmFtZSI6IkphY2siLCJpZCI6IjY4NDE4MWUyZmIwYTQ5NjQ0NjM2ODkyYyIsImlhdCI6MTc0OTEzMzkxNSwiZXhwIjoxNzQ5MzA2NzE1fQ.YQDVYSqAFI8dXnMs-MPEIEjFlo75mgY3wEOVZbZ24x4
+Content-Type: application/json
+
+{
+  "email": "charlie@mail.ru",
+  "avatar": "torrance.png",
+  "name": "Jack",
+  "lastname": "Torrance",
+  "password": "shining",
+  "userType": "pro"
+}
+
+###
+
+## Создать неправильного пользователя
+
+POST http://localhost:3123/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "zxc",
+  "avatar": "torrance.png",
+  "name": "Jack",
+  "lastname": "Torrance",
+  "password": "shining",
+  "userType": "pro"
 }
 
 ###
 
 ## Авторизовать пользователя
 
-POST http://localhost:5001/users/login HTTP/1.1
+POST http://localhost:3123/users/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "torans@overlook.net",
-  "password": "shining"
+  "email": "charlie@mail.ru",
+  "password": "1234567"
 }
 
 ###
 
+## Проверить токен пользователя
+
+GET http://localhost:3123/users/login HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImNoYXJsaWVAbWFpbC5ydSIsIm5hbWUiOiJKYWNrIiwiaWQiOiI2ODQyOWEzMGU5YTk5ZmVhOGY2ZmFiMzUiLCJpYXQiOjE3NDkxOTUzMTksImV4cCI6MTc0OTM2ODExOX0.1PlKWAEYGl2_AIhtoGtxUUL8VA0uwYyFUAXzMKMqfB0
+###
+
 ## Отправить изображение
 
-POST http://localhost:5001/users/67f4f3ae4d7b90c77bd3c3ed/avatar HTTP/1.1
+POST http://localhost:3123/users/682993752b59f50b58ea3cff/avatar HTTP/1.1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="avatar"; filename="Pasta.jpg"
+Content-Disposition: form-data; name="avatar"; filename="image.png"
 Content-Type: image/png
 
-< \Users\admin\Pictures\Pasta.jpg
+< /Users/User/Desktop/image.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
-
-## Проверить токен пользователя
-GET http://localhost:5001/users/login HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJpZCI6IjY0NzBiYzM4M2UzMGRiNjc5ZGZhYzJkMiIsImlhdCI6MTY4NTk3NTQ4MiwiZXhwIjoxNjg2MTQ4MjgyfQ.Gq2-B1egouAnMxmXlR2ElVT6wCa97PS6lxzVI8LnGvo
-
-###
+##

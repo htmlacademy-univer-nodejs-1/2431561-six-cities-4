@@ -14,6 +14,7 @@ import {
   DEFAULT_PREMIUM_OFFER_COUNT,
   DEFAULT_SORT_TYPE,
 } from './offer.constant.js';
+import { CommentEntity } from '../comment/index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -22,7 +23,9 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.FavoriteModel)
-    private readonly favoriteModel: types.ModelType<FavoriteEntity>
+    private readonly favoriteModel: types.ModelType<FavoriteEntity>,
+    @inject(Component.CommentModel)
+    private readonly commentModel: types.ModelType<CommentEntity>
   ) {}
 
   public async create(
@@ -40,7 +43,7 @@ export class DefaultOfferService implements OfferService {
   ): Promise<DocumentType<OfferEntity> | null> {
     const offer = await this.offerModel
       .findById(offerId)
-      .populate('userId')
+      .populate(['userId'])
       .exec();
 
     if (!offer) {
@@ -124,7 +127,7 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async deleteFavorite(userId: string, offerId: string): Promise<void> {
-    await this.favoriteModel.deleteOne({ userId, offerId });
+    await this.favoriteModel.deleteOne({ userId, offerId }).exec();
   }
 
   public async findPremiumOffersByCity(
@@ -179,5 +182,19 @@ export class DefaultOfferService implements OfferService {
       ...offer.toObject(),
       isFavorite: offerIds.has(offer.id.toString()),
     })) as DocumentType<OfferEntity>[];
+  }
+
+  public async updateRating(
+    offerId: string
+  ): Promise<types.DocumentType<OfferEntity> | null> {
+    const comments = await this.commentModel.find({ offerId }).exec();
+
+    const ratings = comments.map((comment) => comment.rating);
+    const total = ratings.reduce((acc, cur) => (acc += cur), 0);
+    const avgRating = ratings.length > 0 ? total / ratings.length : 0;
+
+    return this.offerModel
+      .findByIdAndUpdate(offerId, { rating: avgRating }, { new: true })
+      .exec();
   }
 }

@@ -6,7 +6,7 @@ import {
   Ref,
 } from '@typegoose/typegoose';
 import { UserEntity } from '../user/user.entity.js';
-import { Amenity, HousingType, City } from '../../types/index.js';
+import { Amenity, HousingType, City, Coordinates } from '../../types/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface OfferEntity extends defaultClasses.Base {}
@@ -60,8 +60,11 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, enum: Amenity, type: () => [String] })
   public amenities!: Amenity[];
 
-  // @prop({ required: true, type: () => Location })
-  // public coordinates: Coordinates;
+  @prop({ required: true, type: () => Object })
+  public coordinates!: Coordinates;
+
+  @prop({ required: true, type: Number })
+  public commentCount!: number;
 
   @prop({
     ref: () => UserEntity,
